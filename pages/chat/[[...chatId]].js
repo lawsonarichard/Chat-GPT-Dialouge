@@ -20,6 +20,9 @@ export default function ChatPage({ chatId, title, messages = [] }) {
   const [generatingResponse, setGeneratingResponse] = useState(false);
   const [fullMessage, setFullMessage] = useState("");
   const [originalChatId, setOriginalChatId] = useState(chatId);
+  const [personaList, setPersonaList] = useState([]);
+  const [selectedPersona, setSelectedPersona] = useState("");
+
   const router = useRouter();
 
   const routeHasChanged = chatId !== originalChatId;
@@ -28,6 +31,8 @@ export default function ChatPage({ chatId, title, messages = [] }) {
   useEffect(() => {
     setNewChatMessages([]);
     setNewChatId(null);
+    setPersonaList([]);
+    loadPersonaList();
   }, [chatId]);
 
   // save the newly streamed message to new chat messages
@@ -53,6 +58,18 @@ export default function ChatPage({ chatId, title, messages = [] }) {
     }
   }, [newChatId, generatingResponse, router]);
 
+  const loadPersonaList = async () => {
+    const response = await fetch(`/api/persona/getPersonaList`, {
+      method: "POST",
+    });
+    const json = await response.json();
+    console.log("Person LIST: ", json);
+    setPersonaList(json?.personas || []);
+    if (!selectedPersona && json?.personas.length > 0) {
+      setSelectedPersona(json?.personas[0]);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGeneratingResponse(true);
@@ -76,7 +93,11 @@ export default function ChatPage({ chatId, title, messages = [] }) {
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ chatId, message: messageText }),
+      body: JSON.stringify({
+        chatId,
+        message: messageText,
+        persona: selectedPersona,
+      }),
     });
     const data = response.body;
     if (!data) {
@@ -146,6 +167,20 @@ export default function ChatPage({ chatId, title, messages = [] }) {
             )}
           </div>
           <footer className="bg-gray-800 p-10">
+            {!chatId && (
+              <select
+                value={selectedPersona}
+                onChange={(e) => setSelectedPersona(e.target.value)}
+                className="m-2 mb-2 w-full resize-none rounded-md bg-gray-700 p-2 text-white focus:border-emerald-500 focus:bg-gray-600 focus:outline focus:outline-emerald-500"
+              >
+                {personaList.map((persona) => (
+                  <option key={persona._id} value={persona.persona}>
+                    {persona.persona}
+                  </option>
+                ))}
+              </select>
+            )}
+
             <form onSubmit={handleSubmit}>
               <fieldset className="flex gap-2" disabled={generatingResponse}>
                 <textarea

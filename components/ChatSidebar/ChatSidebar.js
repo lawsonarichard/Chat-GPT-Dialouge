@@ -30,6 +30,12 @@ export const ChatSidebar = ({ chatId }) => {
       >
         <FontAwesomeIcon icon={faPlus} /> New chat
       </Link>
+      <Link
+        href="/persona"
+        className="side-menu-item bg-emerald-500 hover:bg-emerald-600"
+      >
+        <FontAwesomeIcon icon={faPlus} /> New Persona
+      </Link>
       <div className="flex-1 overflow-auto bg-gray-950">
         {chatList.map((chat) => (
           <Link

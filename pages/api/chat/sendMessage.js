@@ -7,10 +7,10 @@ export const config = {
 export default async function handler(req) {
   console.log("IN HERE!");
   try {
-    const { chatId: chatIdFromParam, message } = await req.json();
+    const { chatId: chatIdFromParam, message, persona } = await req.json();
 
     // validate message data
-    if (!message || typeof message !== "string" || message.length > 200) {
+    if (!message || typeof message !== "string" || message.length > 1000) {
       return new Response(
         {
           message: "message is required and must be less than 200 characters",
@@ -25,8 +25,7 @@ export default async function handler(req) {
     console.log("MESSAGE: ", message);
     const initialChatMessage = {
       role: "system",
-      content:
-        "Your name is Chatty Pete. An incredibly intelligent and quick-thinking AI, that always replies with an enthusiastic and positive energy. You were created by WebDevEducation. Your response must be formatted as markdown.",
+      content: persona,
     };
 
     let newChatId;
