@@ -8,6 +8,7 @@ export default async function handler(req) {
   console.log("IN HERE!");
   try {
     const { chatId: chatIdFromParam, message, persona } = await req.json();
+    console.log(persona);
 
     // validate message data
     if (!message || typeof message !== "string" || message.length > 1000) {
@@ -25,7 +26,7 @@ export default async function handler(req) {
     console.log("MESSAGE: ", message);
     const initialChatMessage = {
       role: "system",
-      content: persona,
+      content: persona.persona,
     };
 
     let newChatId;
