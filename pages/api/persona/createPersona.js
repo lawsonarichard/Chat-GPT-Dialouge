@@ -5,10 +5,10 @@ export default async function handler(req, res) {
   try {
     const { user } = await getSession(req, res);
 
-    const { persona } = req.body;
+    const { persona, name } = req.body;
 
     // validate persona data
-    if (!persona || typeof persona !== "string" || persona.length > 1000) {
+    if (!persona || typeof persona !== "string" || persona.length > 4000) {
       res.status(422).json({
         message: "Persona is required and must be less than 1000 characters",
       });
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     // Create new MongoDB document in the "personas" collection with persona and user ID
     await db
       .collection("personas")
-      .insertOne({ userId: user.sub, persona: persona });
+      .insertOne({ userId: user.sub, persona: persona, name: name });
 
     res.status(200).json({
       message: "Persona created successfully",

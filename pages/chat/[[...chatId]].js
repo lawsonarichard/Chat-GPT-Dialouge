@@ -175,7 +175,7 @@ export default function ChatPage({ chatId, title, messages = [] }) {
               >
                 {personaList.map((persona) => (
                   <option key={persona._id} value={persona.persona}>
-                    {persona.persona}
+                    {persona.name}
                   </option>
                 ))}
               </select>

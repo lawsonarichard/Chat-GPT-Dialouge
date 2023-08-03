@@ -4,10 +4,11 @@ import clientPromise from "lib/mongodb";
 export default async function handler(req, res) {
   try {
     const { user } = await getSession(req, res);
-    const { message } = req.body;
+    const { message, persona } = req.body;
+    console.log(persona);
 
     // validate message data
-    if (!message || typeof message !== "string" || message.length > 200) {
+    if (!message || typeof message !== "string" || message.length > 3000) {
       res.status(422).json({
         message: "message is required and must be less than 200 characters",
       });
@@ -24,6 +25,7 @@ export default async function handler(req, res) {
       userId: user.sub,
       messages: [newUserMessage],
       title: message,
+      persona: persona,
     });
     res.status(200).json({
       _id: chat.insertedId.toString(),

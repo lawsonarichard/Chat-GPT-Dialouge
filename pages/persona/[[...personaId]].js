@@ -10,6 +10,7 @@ export default function PersonaPage({ chatId, title, messages = [] }) {
   const [incomingMessage, setIncomingMessage] = useState("");
   const [generatingResponse, setGeneratingResponse] = useState(false);
   const [newChatMessages, setNewChatMessages] = useState([]);
+  const [name, setName] = useState("");
 
   const allMessages = [...messages, ...newChatMessages];
 
@@ -22,7 +23,7 @@ export default function PersonaPage({ chatId, title, messages = [] }) {
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ persona: personaPrompt }),
+      body: JSON.stringify({ persona: personaPrompt, name: name }),
     });
 
     if (!response.ok) {
@@ -35,6 +36,7 @@ export default function PersonaPage({ chatId, title, messages = [] }) {
 
     // Clear the form
     setPersonaPrompt("");
+    setName("");
     setGeneratingResponse(false);
     alert("Persona created successfully!"); // Added this line
     console.log("handled");
@@ -84,6 +86,12 @@ export default function PersonaPage({ chatId, title, messages = [] }) {
           </div>
           <footer className="bg-gray-800 p-10">
             <form onSubmit={handleSubmit}>
+              <textarea
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={generatingResponse ? "" : "Name your persona..."}
+                className="w-full resize-none rounded-md bg-gray-700 p-2 text-white focus:border-emerald-500 focus:bg-gray-600 focus:outline focus:outline-emerald-500"
+              />
               <fieldset className="flex gap-2" disabled={generatingResponse}>
                 <textarea
                   value={personaPrompt}

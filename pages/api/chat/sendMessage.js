@@ -11,7 +11,7 @@ export default async function handler(req) {
     console.log(persona);
 
     // validate message data
-    if (!message || typeof message !== "string" || message.length > 1000) {
+    if (!message || typeof message !== "string" || message.length > 3000) {
       return new Response(
         {
           message: "message is required and must be less than 200 characters",
@@ -62,6 +62,7 @@ export default async function handler(req) {
           },
           body: JSON.stringify({
             message,
+            persona: persona.name,
           }),
         }
       );
