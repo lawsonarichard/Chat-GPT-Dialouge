@@ -98,6 +98,12 @@ export default function PersonaPage({
                 Persona
               </label>
               <DynamicQuill
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
                 value={personaPrompt}
                 onChange={handleQuillChange}
                 placeholder={generatingResponse ? "" : "Create a Persona..."}

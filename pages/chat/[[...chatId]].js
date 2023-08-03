@@ -185,6 +185,12 @@ export default function ChatPage({ chatId, title, messages = [] }) {
             <form onSubmit={handleSubmit}>
               <fieldset className="flex gap-2" disabled={generatingResponse}>
                 <textarea
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
                   placeholder={generatingResponse ? "" : "Send a message..."}
