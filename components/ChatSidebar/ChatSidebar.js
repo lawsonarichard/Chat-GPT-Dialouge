@@ -17,7 +17,6 @@ export const ChatSidebar = ({ chatId, personaId }) => {
         method: "POST",
       });
       const json = await response.json();
-      console.log("CHAT LIST: ", json);
       setChatList(json?.chats || []);
     };
     const loadPersonaList = async () => {
@@ -25,12 +24,11 @@ export const ChatSidebar = ({ chatId, personaId }) => {
         method: "POST",
       });
       const json = await response.json();
-      console.log("Persona LIST: ", json);
       setPersonaList(json?.personas || []);
     };
     loadChatList();
     loadPersonaList();
-  }, [chatId]);
+  }, [chatId, personaId]);
 
   return (
     <div className="flex flex-col overflow-hidden bg-gray-900 text-white">
@@ -78,10 +76,6 @@ export const ChatSidebar = ({ chatId, personaId }) => {
               personaId === persona._id ? "bg-gray-700 hover:bg-gray-700" : ""
             }`}
           >
-            <span class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-              {persona.name}
-            </span>
-
             <span
               title={persona.name}
               className="overflow-hidden text-ellipsis whitespace-nowrap"

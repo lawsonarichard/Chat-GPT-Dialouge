@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 
 export default function ChatPage({ chatId, title, messages = [] }) {
-  console.log("props: ", title, messages);
   const [newChatId, setNewChatId] = useState(null);
   const [incomingMessage, setIncomingMessage] = useState("");
   const [messageText, setMessageText] = useState("");
@@ -63,7 +62,6 @@ export default function ChatPage({ chatId, title, messages = [] }) {
       method: "POST",
     });
     const json = await response.json();
-    console.log("Person LIST: ", json);
     setPersonaList(json?.personas || []);
     if (!selectedPersona && json?.personas.length > 0) {
       setSelectedPersona(json?.personas[0]);
@@ -87,8 +85,6 @@ export default function ChatPage({ chatId, title, messages = [] }) {
     });
     setMessageText("");
 
-    //console.log("NEW CHAT: ", json);
-    console.log("onSubmit".selectedPersona);
     const response = await fetch(`/api/chat/sendMessage`, {
       method: "POST",
       headers: {
@@ -108,7 +104,6 @@ export default function ChatPage({ chatId, title, messages = [] }) {
     const reader = data.getReader();
     let content = "";
     await streamReader(reader, (message) => {
-      console.log("MESSAGE: ", message);
       if (message.event === "newChatId") {
         setNewChatId(message.content);
       } else {

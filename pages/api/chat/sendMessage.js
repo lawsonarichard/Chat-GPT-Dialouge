@@ -5,10 +5,8 @@ export const config = {
 };
 
 export default async function handler(req) {
-  console.log("IN HERE!");
   try {
     const { chatId: chatIdFromParam, message, persona } = await req.json();
-    console.log(persona);
 
     // validate message data
     if (!message || typeof message !== "string" || message.length > 3000) {
@@ -86,8 +84,6 @@ export default async function handler(req) {
     }
 
     messagesToInclude.reverse();
-
-    console.log(messagesToInclude);
 
     const stream = await OpenAIEdgeStream(
       "https://api.openai.com/v1/chat/completions",

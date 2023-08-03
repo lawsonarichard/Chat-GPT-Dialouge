@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   try {
     const { user } = await getSession(req, res);
 
-    const { persona, name } = req.body;
+    const { persona, name, isPublic } = req.body;
 
     // validate persona data
     if (!persona || typeof persona !== "string" || persona.length > 4000) {
@@ -21,7 +21,12 @@ export default async function handler(req, res) {
     // Create new MongoDB document in the "personas" collection with persona and user ID
     await db
       .collection("personas")
-      .insertOne({ userId: user.sub, persona: persona, name: name });
+      .insertOne({
+        userId: user.sub,
+        persona: persona,
+        name: name,
+        isPublic: isPublic,
+      });
 
     res.status(200).json({
       message: "Persona created successfully",

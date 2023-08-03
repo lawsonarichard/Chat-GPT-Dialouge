@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 export default async function handler(req, res) {
   try {
     const { user } = await getSession(req, res);
-    const { personaId, persona, name } = req.body;
+    const { personaId, persona, name, isPublic } = req.body;
 
     const client = await clientPromise;
     const db = client.db("ChattyPete");
@@ -19,6 +19,7 @@ export default async function handler(req, res) {
         $set: {
           persona: persona,
           name: name,
+          isPublic: isPublic,
         },
       }
     );
