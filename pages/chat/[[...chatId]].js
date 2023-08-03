@@ -88,6 +88,7 @@ export default function ChatPage({ chatId, title, messages = [] }) {
     setMessageText("");
 
     //console.log("NEW CHAT: ", json);
+    console.log("onSubmit".selectedPersona);
     const response = await fetch(`/api/chat/sendMessage`, {
       method: "POST",
       headers: {
@@ -174,7 +175,7 @@ export default function ChatPage({ chatId, title, messages = [] }) {
                 className="m-2 mb-2 w-full resize-none rounded-md bg-gray-700 p-2 text-white focus:border-emerald-500 focus:bg-gray-600 focus:outline focus:outline-emerald-500"
               >
                 {personaList.map((persona) => (
-                  <option key={persona._id} value={persona.persona}>
+                  <option key={persona._id} value={persona}>
                     {persona.name}
                   </option>
                 ))}

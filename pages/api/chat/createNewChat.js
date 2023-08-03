@@ -5,7 +5,7 @@ export default async function handler(req, res) {
   try {
     const { user } = await getSession(req, res);
     const { message, persona } = req.body;
-    console.log(persona);
+    console.log("createNewChat", persona);
 
     // validate message data
     if (!message || typeof message !== "string" || message.length > 3000) {
