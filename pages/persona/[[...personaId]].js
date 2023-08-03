@@ -60,9 +60,6 @@ export default function PersonaPage({
       return;
     }
 
-    // Clear the form
-    setPersonaPrompt("");
-    setName("");
     setGeneratingResponse(false);
     alert("Persona operation successful!"); // Added this line
   };
@@ -169,10 +166,11 @@ export const getServerSideProps = async (ctx) => {
     const client = await clientPromise;
     const db = client.db("ChattyPete");
     const persona = await db.collection("personas").findOne({
-      userId: user.sub,
-      _id: objectId,
+      $or: [
+        { userId: user.sub, _id: objectId },
+        { _id: objectId, isPublic: true },
+      ],
     });
-
     if (!persona) {
       return {
         redirect: {

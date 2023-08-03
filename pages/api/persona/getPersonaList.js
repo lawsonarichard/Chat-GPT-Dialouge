@@ -6,18 +6,19 @@ export default async function handler(req, res) {
     const { user } = await getSession(req, res);
     const client = await clientPromise;
     const db = client.db("ChattyPete");
+
+    // Define the find conditions
+    const findConditions = {
+      $or: [{ userId: user.sub }, { isPublic: true }],
+    };
+
     const personas = await db
       .collection("personas")
-      .find(
-        {
-          userId: user.sub,
+      .find(findConditions, {
+        projection: {
+          userId: 0,
         },
-        {
-          projection: {
-            userId: 0,
-          },
-        }
-      )
+      })
       .sort({
         _id: -1,
       })
