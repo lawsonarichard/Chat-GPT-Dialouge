@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChatSidebar } from "components/ChatSidebar";
 import Head from "next/head";
 import { faRobot } from "@fortawesome/free-solid-svg-icons";
@@ -8,30 +8,51 @@ import { redirect } from "next/dist/server/api-utils";
 import { getSession } from "@auth0/nextjs-auth0";
 import clientPromise from "lib/mongodb";
 import { ObjectId } from "mongodb";
+import { useRouter } from "next/router";
 
-export default function PersonaPage({ chatId, personaId, persona }) {
-  const [personaPrompt, setPersonaPrompt] = useState("");
+import DynamicQuill from "../../components/Quill/DynamicQuill";
+import "react-quill/dist/quill.snow.css"; // import styles
+
+export default function PersonaPage({
+  chatId,
+  personaId,
+  persona,
+  personaName,
+}) {
+  const [personaPrompt, setPersonaPrompt] = useState(persona || "");
   const [incomingMessage, setIncomingMessage] = useState("");
   const [generatingResponse, setGeneratingResponse] = useState(false);
   const [newChatMessages, setNewChatMessages] = useState([]);
-  const [name, setName] = useState("");
-  console.log("persona", persona);
+  const [name, setName] = useState(personaName || "");
+
+  useEffect(() => {
+    setPersonaPrompt(persona);
+    setName(personaName);
+  }, [persona, personaName]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setGeneratingResponse(true);
 
-    const response = await fetch("/api/persona/createPersona", {
+    const apiRoute = personaId
+      ? "/api/persona/editPersona"
+      : "/api/persona/createPersona";
+    const body = personaId
+      ? { personaId, persona: personaPrompt, name }
+      : { persona: personaPrompt, name };
+
+    const response = await fetch(apiRoute, {
       method: "POST",
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ persona: personaPrompt, name: name }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
       // Handle error
-      console.log("Error creating persona");
-      alert("Error creating persona. Please try again."); // Added this line
+      console.log("Error with persona operation");
+      alert("Error with persona operation. Please try again."); // Added this line
       setGeneratingResponse(false);
       return;
     }
@@ -40,9 +61,14 @@ export default function PersonaPage({ chatId, personaId, persona }) {
     setPersonaPrompt("");
     setName("");
     setGeneratingResponse(false);
-    alert("Persona created successfully!"); // Added this line
+    alert("Persona operation successful!"); // Added this line
     console.log("handled");
   };
+
+  const handleQuillChange = (content, delta, source, editor) => {
+    setPersonaPrompt(editor.getHTML());
+  };
+
   return (
     <>
       <Head>
@@ -50,37 +76,34 @@ export default function PersonaPage({ chatId, personaId, persona }) {
       </Head>
       <div className="grid h-screen grid-cols-[260px_1fr]">
         <ChatSidebar chatId={chatId} />
-        <div className="flex flex-col overflow-hidden bg-gray-700">
-          <div className="flex flex-1 flex-col-reverse overflow-scroll text-white">
-            {!personaId && (
-              <div className="m-auto flex items-center justify-center text-center">
-                <div>
-                  <FontAwesomeIcon
-                    icon={faRobot}
-                    className="text-6xl text-emerald-200"
-                  />
-                  <h1 className="mt-2 text-4xl font-bold text-white/50">
-                    Create a new persona
-                  </h1>
-                </div>
-              </div>
-            )}
-          </div>
-          <footer className="bg-gray-800 p-10">
+        <div className="flex flex-col  bg-gray-800">
+          <div className="flex flex-1  p-10 text-white">
             <form onSubmit={handleSubmit}>
+              <label
+                class="text-white-800 mb-2 block text-sm font-bold"
+                for="name"
+              >
+                Name
+              </label>
               <textarea
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={generatingResponse ? "" : "Name your persona..."}
                 className="w-full resize-none rounded-md bg-gray-700 p-2 text-white focus:border-emerald-500 focus:bg-gray-600 focus:outline focus:outline-emerald-500"
               />
+              <label
+                class="text-white-800 mb-2 block text-sm font-bold"
+                for="name"
+              >
+                Persona
+              </label>
+              <DynamicQuill
+                value={personaPrompt}
+                onChange={handleQuillChange}
+                placeholder={generatingResponse ? "" : "Create a Persona..."}
+                className="w-full resize-none rounded-md  p-2 text-white focus:border-emerald-500 focus:bg-gray-600 focus:outline focus:outline-emerald-500"
+              />
               <fieldset className="flex gap-2" disabled={generatingResponse}>
-                <textarea
-                  value={personaPrompt}
-                  onChange={(e) => setPersonaPrompt(e.target.value)}
-                  placeholder={generatingResponse ? "" : "Create a Persona..."}
-                  className="w-full resize-none rounded-md bg-gray-700 p-2 text-white focus:border-emerald-500 focus:bg-gray-600 focus:outline focus:outline-emerald-500"
-                />
                 {personaId && (
                   <button type="submit" className="btn">
                     Update
@@ -93,7 +116,7 @@ export default function PersonaPage({ chatId, personaId, persona }) {
                 )}
               </fieldset>
             </form>
-          </footer>
+          </div>
         </div>
       </div>
     </>
@@ -102,7 +125,6 @@ export default function PersonaPage({ chatId, personaId, persona }) {
 
 export const getServerSideProps = async (ctx) => {
   const personaId = ctx.params?.personaId?.[0] || null;
-  console.log("personaId", ctx);
 
   if (personaId) {
     let objectId;
@@ -110,9 +132,11 @@ export const getServerSideProps = async (ctx) => {
     try {
       objectId = new ObjectId(personaId);
     } catch (e) {
-      redirect: {
-        destination: "/persona";
-      }
+      return {
+        redirect: {
+          destination: "/persona",
+        },
+      };
     }
     const { user } = await getSession(ctx.req, ctx.res);
     const client = await clientPromise;
@@ -133,7 +157,7 @@ export const getServerSideProps = async (ctx) => {
       props: {
         personaId,
         persona: persona.persona,
-        name: persona.name,
+        personaName: persona.name,
       },
     };
   }
